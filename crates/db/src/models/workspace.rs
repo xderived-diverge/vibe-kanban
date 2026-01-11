@@ -1,9 +1,12 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, SqlitePool, Type};
+use sqlx::{FromRow, SqlitePool};
 use thiserror::Error;
 use ts_rs::TS;
 use uuid::Uuid;
+
+/// Maximum length for auto-generated workspace names (derived from first user prompt)
+const WORKSPACE_NAME_MAX_LEN: usize = 60;
 
 use super::{
     project::Project,
@@ -30,18 +33,6 @@ pub struct ContainerInfo {
     pub workspace_id: Uuid,
     pub task_id: Uuid,
     pub project_id: Uuid,
-}
-
-#[derive(Debug, Clone, Type, Serialize, Deserialize, PartialEq, TS)]
-#[sqlx(type_name = "workspace_status", rename_all = "lowercase")]
-#[serde(rename_all = "lowercase")]
-pub enum WorkspaceStatus {
-    SetupRunning,
-    SetupComplete,
-    SetupFailed,
-    ExecutorRunning,
-    ExecutorComplete,
-    ExecutorFailed,
 }
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize, TS)]
@@ -592,7 +583,7 @@ impl Workspace {
             if ws.workspace.name.is_none()
                 && let Some(prompt) = Self::get_first_user_message(pool, ws.workspace.id).await?
             {
-                let name = Self::truncate_to_name(&prompt, 35);
+                let name = Self::truncate_to_name(&prompt, WORKSPACE_NAME_MAX_LEN);
                 Self::update(pool, ws.workspace.id, None, None, Some(&name)).await?;
                 ws.workspace.name = Some(name);
             }
@@ -679,7 +670,7 @@ impl Workspace {
         if ws.workspace.name.is_none()
             && let Some(prompt) = Self::get_first_user_message(pool, ws.workspace.id).await?
         {
-            let name = Self::truncate_to_name(&prompt, 35);
+            let name = Self::truncate_to_name(&prompt, WORKSPACE_NAME_MAX_LEN);
             Self::update(pool, ws.workspace.id, None, None, Some(&name)).await?;
             ws.workspace.name = Some(name);
         }
