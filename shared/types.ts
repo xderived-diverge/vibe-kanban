@@ -64,9 +64,11 @@ export type DraftWorkspaceData = { message: string, project_id: string | null, r
 
 export type DraftWorkspaceRepo = { repo_id: string, target_branch: string, };
 
-export type ScratchPayload = { "type": "DRAFT_TASK", "data": string } | { "type": "DRAFT_FOLLOW_UP", "data": DraftFollowUpData } | { "type": "DRAFT_WORKSPACE", "data": DraftWorkspaceData };
+export type PreviewUrlOverrideData = { url: string, };
 
-export enum ScratchType { DRAFT_TASK = "DRAFT_TASK", DRAFT_FOLLOW_UP = "DRAFT_FOLLOW_UP", DRAFT_WORKSPACE = "DRAFT_WORKSPACE" }
+export type ScratchPayload = { "type": "DRAFT_TASK", "data": string } | { "type": "DRAFT_FOLLOW_UP", "data": DraftFollowUpData } | { "type": "DRAFT_WORKSPACE", "data": DraftWorkspaceData } | { "type": "PREVIEW_URL_OVERRIDE", "data": PreviewUrlOverrideData };
+
+export enum ScratchType { DRAFT_TASK = "DRAFT_TASK", DRAFT_FOLLOW_UP = "DRAFT_FOLLOW_UP", DRAFT_WORKSPACE = "DRAFT_WORKSPACE", PREVIEW_URL_OVERRIDE = "PREVIEW_URL_OVERRIDE" }
 
 export type Scratch = { id: string, payload: ScratchPayload, created_at: string, updated_at: string, };
 
@@ -298,7 +300,7 @@ export type GetPrCommentsError = { "type": "no_pr_attached" } | { "type": "cli_n
 
 export type GetPrCommentsQuery = { repo_id: string, };
 
-export type UnifiedPrComment = { "comment_type": "general", id: string, author: string, author_association: string | null, body: string, created_at: string, url: string | null, } | { "comment_type": "review", id: bigint, author: string, author_association: string | null, body: string, created_at: string, url: string | null, path: string, line: bigint | null, diff_hunk: string | null, };
+export type UnifiedPrComment = { "comment_type": "general", id: string, author: string, author_association: string | null, body: string, created_at: string, url: string | null, } | { "comment_type": "review", id: bigint, author: string, author_association: string | null, body: string, created_at: string, url: string | null, path: string, line: bigint | null, side: string | null, diff_hunk: string | null, };
 
 export type ProviderKind = "git_hub" | "azure_dev_ops" | "unknown";
 
